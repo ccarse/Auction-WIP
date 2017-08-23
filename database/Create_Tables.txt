@@ -1,0 +1,27 @@
+CREATE TABLE auctions (
+  AuctionId TEXT PRIMARY KEY,
+  AuctionTitle TEXT,
+  AuctionDetailsURL TEXT,
+  AuctionItemsURL TEXT,
+  AuctionLocation TEXT,
+  AuctionDateTime INTEGER ,
+  AuctionNotes TEXT
+);
+ 
+CREATE TABLE items (
+  ItemId TEXT PRIMARY KEY,
+  AuctionId TEXT,
+  ItemDescription TEXT,
+  ItemURL TEXT,
+  ItemCurrentBid REAL,
+  ItemNextBid REAL,
+  ItemAdditionalInfo  TEXT,
+  SortOrder INTEGER,
+  Brand TEXT,
+  Model TEXT,
+  MSRP REAL,
+  Specifications TEXT,
+  LastUpdated INTEGER,
+  Status TEXT,
+  ItemExpiration INTEGER
+);
