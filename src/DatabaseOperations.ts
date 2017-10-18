@@ -18,13 +18,13 @@ export function InsertAuction(auction: IAuction) {
     `;
 
     db.run(sql, 
-            auction.AuctionId, 
-            auction.AuctionTitle, 
-            auction.AuctionDetailsURL, 
-            auction.AuctionItemsURL, 
-            auction.AuctionLocation, 
-            auction.AuctionDateTime, 
-            auction.AuctionNotes);
+            auction.auctionNumber, 
+            auction.title, 
+            auction.auctionUrl + auction.auctionNumber, 
+            auction.auctionUrl + auction.auctionNumber + "/category/ALL", 
+            auction.ftalocationName, 
+            auction.endDate, 
+            "");
     
 }
 

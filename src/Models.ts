@@ -1,11 +1,27 @@
 export interface IAuction {
-    AuctionTitle: string;
-    AuctionDetailsURL: string;
-    AuctionId: string;
-    AuctionItemsURL: string;
-    AuctionLocation: string;
-    AuctionDateTime: Date;
-    AuctionNotes: string;
+    idWlAuctions: number;
+    auctionNumber: number;
+    auctionLocationIdmf: number;
+    items: number;
+    timeRemaining: string;
+    showTimeRemaining: boolean;
+    endDateText: string;
+    endDate: string;
+    endTimeText: string;
+    endDateTime: string;
+    auctionUrl: string;
+    status: string;
+    createdTs: string;
+    picUrl: string;
+    timeStatus: number;
+    ftalocationName: string;
+    locId: number;
+    iframeUrl: string;
+    removal: string;
+    auctionMininame: string;
+    title: string;
+    negTime: number;
+    closedAuctionsPageDate: string;
 }
 
 export interface IAuctionItem {

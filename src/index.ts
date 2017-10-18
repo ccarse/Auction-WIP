@@ -5,26 +5,34 @@ import * as db from './DatabaseOperations';
 import { DelayPromise } from "./DelayPromise";
 import { GetAuctionItems } from "./GetAuctionItems";
 
-function RetrieveAuctions() {
-  GetAuctions()
-  .then(auctions => SaveAuctions(auctions));
-}
+import * as rp from 'request-promise-native';
 
 function SaveAuctions(auctions: IAuction[]) {
   auctions.forEach(auction => db.InsertAuction(auction));
-  RetrieveAuctionItems(auctions);
-}
-
-function RetrieveAuctionItems(auctions: IAuction[]) {
-  auctions.forEach((auction, index) => {
-    GetAuctionItems(auction.AuctionId)
-    .then(DelayPromise(index * 100000)).then(auctionItems => SaveAuctionItems(auctionItems));
-  });
 }
 
 function SaveAuctionItems(auctionItems: IAuctionItem[]) {
   auctionItems.forEach(auctionItem => db.InsertAuctionItem(auctionItem));
 }
 
-db.OpenDb();
-RetrieveAuctions();
+async function main() {
+  try {
+
+    db.OpenDb();
+    const auctions = await GetAuctions();
+    // console.log(JSON.stringify(auctions, null, 2));
+    SaveAuctions(auctions);
+  
+    for (const [index, auction] of auctions.entries()) {
+      console.log("Index: " + index + " Auction: " + auction);
+      const items = await GetAuctionItems(auction.auctionUrl, auction.auctionNumber);
+      console.log("Items: " + items.length);
+      console.log(JSON.stringify(items, null, 2));
+      SaveAuctionItems(items);
+    }
+  } catch (error) {
+    console.log("Error: " + error);
+  }
+}
+
+main();
