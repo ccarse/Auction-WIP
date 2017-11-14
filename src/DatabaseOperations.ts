@@ -1,63 +1,29 @@
 import { IAuction, IAuctionItem } from 'Models';
-import * as sqlite3 from 'sqlite3';
+import { config } from '../config';
 
-let db: sqlite3.Database;
+import * as DB from "documentdb-typescript";
+import { Collection, StoreMode } from 'documentdb-typescript';
 
-export function OpenDb() {
-    db = new sqlite3.Database('./database/auctions.sqlite');
-    db.serialize();
-}
+export async function UpsertAuction(auction: IAuction) {
+    const client = new DB.Client(config.host, config.authKey);
+    client.enableConsoleLog = true;
 
-export function CloseDb() {
-    db.close();
-}
+    const coll = new Collection("auction", "auctioneer", client);
+    await coll.openAsync();
 
-export function InsertAuction(auction: IAuction) {
-    const sql = `
-    INSERT OR REPLACE INTO auctions VALUES(?,?,?,?,?,?,?)
-    `;
-
-    db.run(sql, 
-            auction.auctionNumber, 
-            auction.title, 
-            auction.auctionUrl + auction.auctionNumber, 
-            auction.auctionUrl + auction.auctionNumber + "/category/ALL", 
-            auction.ftalocationName, 
-            auction.endDate, 
-            "");
+    auction.id = String(auction.idWlAuctions);
     
+    await coll.storeDocumentAsync(auction, StoreMode.Upsert);
 }
 
-export function InsertAuctionItem(auctionItem: IAuctionItem) {
-    const sql = `
-    INSERT OR REPLACE INTO items VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-    `;
+export async function UpsertAuctionItems(items: IAuctionItem[]) {
+    const client = new DB.Client(config.host, config.authKey);
+    client.enableConsoleLog = true;
 
-    db.run(sql, 
-            auctionItem.ItemId,
-            auctionItem.AuctionId,
-            auctionItem.ItemDescription,
-            auctionItem.ItemURL,
-            auctionItem.ItemCurrentBid,
-            auctionItem.ItemNextBid,
-            auctionItem.ItemAdditionalInfo,
-            auctionItem.SortOrder,
-            auctionItem.Brand,
-            auctionItem.Model,
-            auctionItem.MSRP,
-            auctionItem.Specifications,
-            auctionItem.LastUpdated,
-            auctionItem.Status,
-            auctionItem.ItemExpiration);
-
-}
-
-export function SelectAuctionIds(callback: (rows: string[]) => any) {
-    const sql = `
-    SELECT AuctionId FROM auctions
-    `;
-
-    db.all(sql, (err, rows) => {
-        callback(rows.map(r => r.AuctionId));
-    });
+    const coll = new Collection("auction-items", "auctioneer", client);
+    await coll.openAsync();
+    for (var item of items) {
+        await coll.storeDocumentAsync(item, StoreMode.Upsert);
+    }
+    
 }

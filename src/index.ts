@@ -7,31 +7,26 @@ import { GetAuctionItems } from "./GetAuctionItems";
 
 import * as rp from 'request-promise-native';
 
-function SaveAuctions(auctions: IAuction[]) {
-  auctions.forEach(auction => db.InsertAuction(auction));
-}
-
-function SaveAuctionItems(auctionItems: IAuctionItem[]) {
-  auctionItems.forEach(auctionItem => db.InsertAuctionItem(auctionItem));
-}
-
 async function main() {
   try {
-
-    db.OpenDb();
     const auctions = await GetAuctions();
-    // console.log(JSON.stringify(auctions, null, 2));
-    SaveAuctions(auctions);
+    console.log(JSON.stringify(auctions, null, 2));
   
     for (const [index, auction] of auctions.entries()) {
-      console.log("Index: " + index + " Auction: " + auction);
-      const items = await GetAuctionItems(auction.auctionUrl, auction.auctionNumber);
-      console.log("Items: " + items.length);
-      console.log(JSON.stringify(items, null, 2));
-      SaveAuctionItems(items);
+      try {
+        await db.UpsertAuction(auction);
+        // console.log("Index: " + index + " Auction: " + auction);
+        const items = await GetAuctionItems(auction);//auction.auctionUrl, auction.auctionNumber);
+        // console.log("Items: " + items.length);
+        //auction.itemsArray = items;
+        await db.UpsertAuctionItems(items);
+      } catch (error) {
+        console.log("Error getting auction items or saving auction: " + error);
+      }
     }
   } catch (error) {
-    console.log("Error: " + error);
+    console.log("Error getting auctions: " + error);
+    console.log(JSON.stringify(error, null, 2));
   }
 }
 

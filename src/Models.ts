@@ -22,11 +22,14 @@ export interface IAuction {
     title: string;
     negTime: number;
     closedAuctionsPageDate: string;
+    itemsArray: Array<IAuctionItem>;
+    id: string;
 }
 
 export interface IAuctionItem {
-    ItemId: string;
+    id: string;
     AuctionId: string;
+    AuctionNumber: string;
     ItemDescription: string;
     ItemURL: string;
     ItemCurrentBid: number;

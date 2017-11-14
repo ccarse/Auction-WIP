@@ -1,13 +1,12 @@
 import * as cheerio from 'cheerio';
 import * as rp from 'request-promise-native';
 
-import { DelayPromise } from "./DelayPromise";
-import { IAuctionItem } from "./Models";
+import { IAuctionItem, IAuction } from "./Models";
 
-export function GetAuctionItems(auctionUrl: string, auctionNumber: number) {
-  console.log(`In GetAuctionItems() for auction: ${auctionNumber}`);
+export function GetAuctionItems(auction: IAuction) {
+  console.log(`In GetAuctionItems() for auction: ${auction.auctionNumber}`);
 
-  const url = auctionUrl + auctionNumber + '/category/ALL';
+  const url = auction.auctionUrl + auction.auctionNumber + '/category/ALL';
   const proxy = 'http://proxy.us.abb.com:8080';
   
   const requestOptions = {
@@ -31,11 +30,11 @@ export function GetAuctionItems(auctionUrl: string, auctionNumber: number) {
 
     const p: Array<Promise<IAuctionItem>> = [];
     for (const [index, ItemId] of itemIds.entries()) {
-      const ItemURL = auctionUrl + auctionNumber + "/" + ItemId; 
+      const ItemURL = auction.auctionUrl + auction.auctionNumber + "/" + ItemId; 
       const pr = rp({...requestOptions, url: ItemURL})
       .then(bodyStr => {
         const $2 = cheerio.load(bodyStr);
-        console.log(cheerio.load(bodyStr)('#DataTable .DataRow').text());
+        // console.log(cheerio.load(bodyStr)('#DataTable .DataRow').text());
         const ItemDescription = $2(`#${ItemId} td:nth-of-type(3) b:contains('Description')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Description')`)[0].nextSibling.nodeValue.substring(2) || '';
         const ItemCurrentBid = Number($2(`#${ItemId} td:nth-of-type(6)`).text());
         const ItemNextBid = Number($2(`#${ItemId} td:nth-of-type(7)`).text());
@@ -50,8 +49,9 @@ export function GetAuctionItems(auctionUrl: string, auctionNumber: number) {
         const ItemExpiration = new Date();
 
         const auctionItem: IAuctionItem = {
-          ItemId,
-          AuctionId: auctionNumber.toString(),
+          id: ItemId,
+          AuctionId: auction.idWlAuctions.toString(),
+          AuctionNumber: auction.auctionNumber.toString(),
           ItemDescription,
           ItemURL,
           ItemCurrentBid,
@@ -73,8 +73,4 @@ export function GetAuctionItems(auctionUrl: string, auctionNumber: number) {
     }
     return Promise.all(p);
   })
-  .catch(err => {
-    console.log("Error in GetAuctionItems(): " + err); 
-    return [];
-  });
 }
