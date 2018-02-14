@@ -4,7 +4,7 @@ import * as sqlite3 from 'sqlite3';
 let db: sqlite3.Database;
 
 export function OpenDb() {
-    db = new sqlite3.Database('./database/auctions.sqlite');
+    db = new sqlite3.Database('../database/auctions.sqlite');
     db.serialize();
 }
 
@@ -17,31 +17,36 @@ export function InsertAuction(auction: IAuction) {
     INSERT OR REPLACE INTO auctions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `;
 
-    db.run(sql, 
-           auction.idWlAuctions,
-           auction.auctionNumber,
-           auction.auctionLocationIdmf,
-           auction.items,
-           auction.timeRemaining,
-           auction.showTimeRemaining,
-           auction.endDateText,
-           auction.endDate,
-           auction.endTimeText,
-           auction.endDateTime,
-           auction.auctionUrl,
-           auction.status,
-           auction.createdTs,
-           auction.picUrl,
-           auction.timeStatus,
-           auction.ftalocationName,
-           auction.locId,
-           auction.iframeUrl,
-           auction.removal,
-           auction.auctionMininame,
-           auction.title,
-           auction.negTime,
-           auction.closedAuctionsPageDate
-            );
+    try {
+        db.run(sql, 
+            auction.idWlAuctions,
+            auction.auctionNumber,
+            auction.auctionLocationIdmf,
+            auction.items,
+            auction.timeRemaining,
+            auction.showTimeRemaining,
+            auction.endDateText,
+            auction.endDate,
+            auction.endTimeText,
+            auction.endDateTime,
+            auction.auctionUrl,
+            auction.status,
+            auction.createdTs,
+            auction.picUrl,
+            auction.timeStatus,
+            auction.ftalocationName,
+            auction.locId,
+            auction.iframeUrl,
+            auction.removal,
+            auction.auctionMininame,
+            auction.title,
+            auction.negTime,
+            auction.closedAuctionsPageDate
+        );
+    } catch (error) {
+        console.log("Error inserting auction.");
+        throw error;
+    }
     
 }
 
@@ -77,4 +82,8 @@ export function SelectAuctionIds(callback: (rows: string[]) => any) {
     db.all(sql, (err, rows) => {
         callback(rows.map(r => r.AuctionId));
     });
+}
+
+export async function SaveAuctionItems(auctionItems: IAuctionItem[]) {
+    await auctionItems.forEach(auctionItem => InsertAuctionItem(auctionItem));
 }
