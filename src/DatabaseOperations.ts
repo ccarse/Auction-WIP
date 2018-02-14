@@ -1,29 +1,80 @@
 import { IAuction, IAuctionItem } from 'Models';
-import { config } from '../config';
+import * as sqlite3 from 'sqlite3';
 
-import * as DB from "documentdb-typescript";
-import { Collection, StoreMode } from 'documentdb-typescript';
+let db: sqlite3.Database;
 
-export async function UpsertAuction(auction: IAuction) {
-    const client = new DB.Client(config.host, config.authKey);
-    client.enableConsoleLog = true;
-
-    const coll = new Collection("auction", "auctioneer", client);
-    await coll.openAsync();
-
-    auction.id = String(auction.idWlAuctions);
-    
-    await coll.storeDocumentAsync(auction, StoreMode.Upsert);
+export function OpenDb() {
+    db = new sqlite3.Database('./database/auctions.sqlite');
+    db.serialize();
 }
 
-export async function UpsertAuctionItems(items: IAuctionItem[]) {
-    const client = new DB.Client(config.host, config.authKey);
-    client.enableConsoleLog = true;
+export function CloseDb() {
+    db.close();
+}
 
-    const coll = new Collection("auction-items", "auctioneer", client);
-    await coll.openAsync();
-    for (var item of items) {
-        await coll.storeDocumentAsync(item, StoreMode.Upsert);
-    }
+export function InsertAuction(auction: IAuction) {
+    const sql = `
+    INSERT OR REPLACE INTO auctions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `;
+
+    db.run(sql, 
+           auction.idWlAuctions,
+           auction.auctionNumber,
+           auction.auctionLocationIdmf,
+           auction.items,
+           auction.timeRemaining,
+           auction.showTimeRemaining,
+           auction.endDateText,
+           auction.endDate,
+           auction.endTimeText,
+           auction.endDateTime,
+           auction.auctionUrl,
+           auction.status,
+           auction.createdTs,
+           auction.picUrl,
+           auction.timeStatus,
+           auction.ftalocationName,
+           auction.locId,
+           auction.iframeUrl,
+           auction.removal,
+           auction.auctionMininame,
+           auction.title,
+           auction.negTime,
+           auction.closedAuctionsPageDate
+            );
     
+}
+
+export function InsertAuctionItem(auctionItem: IAuctionItem) {
+    const sql = `
+    INSERT OR REPLACE INTO items VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `;
+
+    db.run(sql, 
+            auctionItem.id,
+            auctionItem.AuctionId,
+            auctionItem.AuctionNumber,
+            auctionItem.ItemDescription,
+            auctionItem.ItemURL,
+            auctionItem.ItemCurrentBid,
+            auctionItem.ItemNextBid,
+            auctionItem.ItemAdditionalInfo,
+            auctionItem.SortOrder,
+            auctionItem.Brand,
+            auctionItem.Model,
+            auctionItem.MSRP,
+            auctionItem.Specifications,
+            auctionItem.LastUpdated,
+            auctionItem.Status,
+            auctionItem.ItemExpiration);
+}
+
+export function SelectAuctionIds(callback: (rows: string[]) => any) {
+    const sql = `
+    SELECT AuctionId FROM auctions
+    `;
+
+    db.all(sql, (err, rows) => {
+        callback(rows.map(r => r.AuctionId));
+    });
 }

@@ -22,8 +22,6 @@ export interface IAuction {
     title: string;
     negTime: number;
     closedAuctionsPageDate: string;
-    itemsArray: Array<IAuctionItem>;
-    id: string;
 }
 
 export interface IAuctionItem {

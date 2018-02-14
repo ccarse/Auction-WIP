@@ -1,16 +1,33 @@
 CREATE TABLE auctions (
-  AuctionId TEXT PRIMARY KEY,
-  AuctionTitle TEXT,
-  AuctionDetailsURL TEXT,
-  AuctionItemsURL TEXT,
-  AuctionLocation TEXT,
-  AuctionDateTime INTEGER ,
-  AuctionNotes TEXT
+  idWlAuctions INTEGER PRIMARY KEY
+  auctionNumber TEXT,
+  auctionLocationIdmf REAL,
+  items INTEGER,
+  timeRemaining TEXT,
+  showTimeRemaining INTEGER,
+  endDateText TEXT,
+  endDate TEXT,
+  endTimeText TEXT,
+  endDateTime TEXT,
+  auctionUrl TEXT,
+  status TEXT,
+  createdTs TEXT,
+  picUrl TEXT,
+  timeStatus REAL,
+  ftalocationName TEXT,
+  locId REAL,
+  iframeUrl TEXT,
+  removal TEXT,
+  auctionMininame TEXT,
+  title TEXT,
+  negTime REAL,
+  closedAuctionsPageDate TEXT
 );
  
 CREATE TABLE items (
-  ItemId TEXT PRIMARY KEY,
+  id TEXT PRIMARY KEY,
   AuctionId TEXT,
+  AuctionNumber TEXT,
   ItemDescription TEXT,
   ItemURL TEXT,
   ItemCurrentBid REAL,
