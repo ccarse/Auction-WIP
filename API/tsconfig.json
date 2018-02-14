@@ -1,0 +1,18 @@
+{
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "compilerOptions": {
+    "traceResolution": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "module": "commonjs",
+    "target": "es6",
+    "jsx": "react",
+    "lib": ["es6","dom.iterable","scripthost"],
+    "baseUrl": "src/"
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "auction-api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "ts-node src/app.ts"
+  },
+  "author": "Cody Carse",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.11.1",
+    "express": "^4.16.2",
+    "graphql": "^0.13.0",
+    "ts-node": "^4.1.0",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.1"
+  }
+}
