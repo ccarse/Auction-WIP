@@ -1,5 +1,5 @@
-import { IAuction, IAuctionItem } from 'Models';
 import * as sqlite3 from 'sqlite3';
+import { IAuction, IAuctionItem } from '../../Models/Models';
 
 let db: sqlite3.Database;
 
@@ -14,37 +14,23 @@ export function CloseDb() {
 
 export function InsertAuction(auction: IAuction) {
     const sql = `
-    INSERT OR REPLACE INTO auctions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    INSERT OR REPLACE INTO auctions VALUES(?,?,?,?,?,?,?,?,?)
     `;
 
     try {
         db.run(sql, 
-            auction.idWlAuctions,
-            auction.auctionNumber,
-            auction.auctionLocationIdmf,
-            auction.items,
-            auction.timeRemaining,
-            auction.showTimeRemaining,
-            auction.endDateText,
-            auction.endDate,
-            auction.endTimeText,
-            auction.endDateTime,
-            auction.auctionUrl,
-            auction.status,
-            auction.createdTs,
-            auction.picUrl,
-            auction.timeStatus,
-            auction.ftalocationName,
-            auction.locId,
-            auction.iframeUrl,
-            auction.removal,
-            auction.auctionMininame,
-            auction.title,
-            auction.negTime,
-            auction.closedAuctionsPageDate
+            auction.AuctionId,
+            auction.AuctionNumber,
+            auction.Title,
+            auction.EndDateTime,
+            auction.CreatedTs,
+            auction.PicURL,
+            auction.FtalocationName,
+            auction.LocationMiniName,
+            auction.RemovalString
         );
     } catch (error) {
-        console.log("Error inserting auction.");
+        console.log('Error inserting auction.');
         throw error;
     }
     
@@ -56,7 +42,7 @@ export function InsertAuctionItem(auctionItem: IAuctionItem) {
     `;
 
     db.run(sql, 
-            auctionItem.id,
+            auctionItem.ItemId,
             auctionItem.AuctionId,
             auctionItem.AuctionNumber,
             auctionItem.ItemDescription,

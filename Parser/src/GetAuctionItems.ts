@@ -1,12 +1,12 @@
 import * as cheerio from 'cheerio';
 import * as rp from 'request-promise-native';
+import { IAuction, IAuctionItem } from '../../Models/Models';
 
-import { IAuction, IAuctionItem } from "./Models";
+export async function GetAuctionItems(auction: IAuction) {
+  console.log(`In GetAuctionItems() for auction: ${auction.AuctionNumber}`);
 
-export function GetAuctionItems(auction: IAuction) {
-  console.log(`In GetAuctionItems() for auction: ${auction.auctionNumber}`);
-
-  const url = auction.auctionUrl + auction.auctionNumber + '/category/ALL';
+  const urlPrefix = 'http://bid.bidfta.com/cgi-bin/mnlist.cgi?';
+  const url = `${urlPrefix}${auction.LocationMiniName}${auction.AuctionNumber}/category/ALL`;
   const proxy = 'http://proxy.us.abb.com:8080';
   
   const requestOptions = {
@@ -15,8 +15,7 @@ export function GetAuctionItems(auction: IAuction) {
   };
 
   try {
-    return rp(requestOptions)
-  .then(bodyString => {
+    const bodyString = await rp(requestOptions);
     const $ = cheerio.load(bodyString);
     
     const inputs = $('table#SelectPage p').find('input[type=hidden]').filter('[name!=npage]').filter('[name!=nwpage]');
@@ -31,12 +30,13 @@ export function GetAuctionItems(auction: IAuction) {
 
     const p: Array<Promise<IAuctionItem>> = [];
     for (const [index, ItemId] of itemIds.entries()) {
-      const ItemURL = auction.auctionUrl + auction.auctionNumber + "/" + ItemId; 
+      const ItemURL = urlPrefix + auction.LocationMiniName + auction.AuctionNumber + '/' + ItemId; 
       const pr = rp({...requestOptions, url: ItemURL})
-      .then(bodyStr => {
+      .then((bodyStr: any) => {
         const $2 = cheerio.load(bodyStr);
         // console.log(cheerio.load(bodyStr)('#DataTable .DataRow').text());
-        const ItemDescription = $2(`#${ItemId} td:nth-of-type(3) b:contains('Description')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Description')`)[0].nextSibling.nodeValue.substring(2) || '';
+        const ItemDescription = $2(`#${ItemId} td:nth-of-type(3) b:contains('Description')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Description')`)[0].nextSibling.nodeValue.substring(2) || 
+                                $2(`#${ItemId} td:nth-of-type(3) b:contains('Item Desc')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Item Desc')`)[0].nextSibling.nodeValue.substring(2) || '';
         const ItemCurrentBid = Number($2(`#${ItemId} td:nth-of-type(6)`).text());
         const ItemNextBid = Number($2(`#${ItemId} td:nth-of-type(7)`).text());
         const ItemAdditionalInfo = $2(`#${ItemId} td:nth-of-type(3) b:contains('Additional Info')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Additional Info')`)[0].nextSibling.nodeValue.substring(2) || '';
@@ -45,14 +45,14 @@ export function GetAuctionItems(auction: IAuction) {
         const Model = $2(`#${ItemId} td:nth-of-type(3) b:contains('Model')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Model')`)[0].nextSibling.nodeValue.substring(2) || '';
         const MSRP = Number($2(`#${ItemId} td:nth-of-type(3) b:contains('MSRP')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('MSRP')`)[0].nextSibling.nodeValue.substring(2) || 0);
         const Specifications = $2(`#${ItemId} td:nth-of-type(3) b:contains('Specifications')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Specifications')`)[0].nextSibling.nodeValue.substring(2) || '';
-        const LastUpdated = new Date();
+        const LastUpdated = (new Date()).toISOString();
         const Status = '';
-        const ItemExpiration = new Date();
+        const ItemExpiration = (new Date()).toISOString();
 
         const auctionItem: IAuctionItem = {
-          id: ItemId,
-          AuctionId: auction.idWlAuctions.toString(),
-          AuctionNumber: auction.auctionNumber.toString(),
+          ItemId,
+          AuctionId: auction.AuctionId,
+          AuctionNumber: auction.AuctionNumber,
           ItemDescription,
           ItemURL,
           ItemCurrentBid,
@@ -73,7 +73,7 @@ export function GetAuctionItems(auction: IAuction) {
       p.push(pr);
     }
     return Promise.all(p);
-  });
+
   } catch (error) {
     console.log('Error getting auction items.');
     throw error;

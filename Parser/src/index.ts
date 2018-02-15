@@ -1,18 +1,15 @@
-import { GetAuctions } from "./GetAuctions";
-import { IAuction, IAuctionItem } from "./Models";
+import * as rp from 'request-promise-native';
 
 import * as db from './DatabaseOperations';
-import { DelayPromise } from "./DelayPromise";
-import { GetAuctionItems } from "./GetAuctionItems";
-
-import * as rp from 'request-promise-native';
+import { DelayPromise } from './DelayPromise';
+import { GetAuctionItems } from './GetAuctionItems';
+import { GetAuctions } from './GetAuctions';
 
 async function main() {
   try {
     db.OpenDb();
     
     const auctions = await GetAuctions();
-    console.log(JSON.stringify(auctions, null, 2));
   
     for (const [index, auction] of auctions.entries()) {
       try {
@@ -23,11 +20,11 @@ async function main() {
         //auction.itemsArray = items;
         items ? await db.SaveAuctionItems(items) : console.log('No items returned for auction.');
       } catch (error) {
-        console.log("Error getting auction items or saving auction: " + error);
+        console.log('Error getting auction items or saving auction: ' + error);
       } 
     }
   } catch (error) {
-    console.log("Error getting auctions: " + error);
+    console.log('Error getting auctions: ' + error);
     console.log(JSON.stringify(error, null, 2));
   }
 }
