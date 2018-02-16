@@ -10,7 +10,7 @@ interface IAppState {
 class App extends React.Component<{}, IAppState> {
   
   componentDidMount() {
-    fetch('https://function-auction-api.azurewebsites.net/api/auctions')
+    fetch('http://locahost:4000/graphql')
     .then(response => response.json())
     .then(json => this.setState(json));
   }

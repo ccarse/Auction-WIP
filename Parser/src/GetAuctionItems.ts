@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import * as rp from 'request-promise-native';
 import { IAuction, IAuctionItem } from '../../Models/Models';
+import { GetLocalDateTime } from './DateHelper';
 
 export async function GetAuctionItems(auction: IAuction) {
   console.log(`In GetAuctionItems() for auction: ${auction.AuctionNumber}`);
@@ -45,9 +46,9 @@ export async function GetAuctionItems(auction: IAuction) {
         const Model = $2(`#${ItemId} td:nth-of-type(3) b:contains('Model')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Model')`)[0].nextSibling.nodeValue.substring(2) || '';
         const MSRP = Number($2(`#${ItemId} td:nth-of-type(3) b:contains('MSRP')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('MSRP')`)[0].nextSibling.nodeValue.substring(2) || 0);
         const Specifications = $2(`#${ItemId} td:nth-of-type(3) b:contains('Specifications')`)[0] && $2(`#${ItemId} td:nth-of-type(3) b:contains('Specifications')`)[0].nextSibling.nodeValue.substring(2) || '';
-        const LastUpdated = (new Date()).toISOString();
+        const LastUpdated = GetLocalDateTime();
         const Status = '';
-        const ItemExpiration = (new Date()).toISOString();
+        const ItemExpiration = auction.EndDateTime;
 
         const auctionItem: IAuctionItem = {
           ItemId,
